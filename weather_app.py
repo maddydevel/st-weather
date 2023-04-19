@@ -1,66 +1,35 @@
-import requests
 import streamlit as st
-import pandas as pd
+import requests
+import json
 
-# Define the URL for the weather API from the new vendor
-API_URL = "https://api.weatherapi.com/v1/current.json"
+# API endpoint for weather data
+api_url = 'https://api.openweathermap.org/data/2.5/weather'
 
-# Define the default location and API key for the new vendor
-DEFAULT_LOCATION = "London, UK"
-API_KEY = "78958bb4a0634c5da72140953231904"
-
-# Define the weather data columns we want to display
-WEATHER_COLUMNS = ["Temperature", "Feels like", "Humidity", "Pressure"]
-
-# Define the available output formats
-OUTPUT_FORMATS = {
-    "Table": "table",
-    "Line Chart": "line_chart",
-    "Bar Chart": "bar_chart",
-    "Area Chart": "area_chart",
+# Set up API parameters
+params = {
+    'appid': '7edb546a1f1de6d1c5ae3cd3f9850076',
+    'units': 'metric',
+    'cnt': 1,
+    'q': 'London',
 }
 
-# Define a function to fetch the weather data for a given location from the new vendor
-def fetch_weather_data(location):
-    params = {"q": location, "key": API_KEY, "aqi": "no"}
-    response = requests.get(API_URL, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        return {
-            "location": f"{data['location']['name']}, {data['location']['country']}",
-            "temperature": data["current"]["temp_c"],
-            "feels_like": data["current"]["feelslike_c"],
-            "humidity": data["current"]["humidity"],
-            "pressure": data["current"]["pressure_mb"],
-        }
-    else:
-        st.warning("Unable to fetch weather data.")
-        return None
+# Get weather data for London
+response = requests.get(api_url, params=params)
 
-# Define the Streamlit app
-def app():
-    # Set the page title
-    st.set_page_config(page_title="Weather App", page_icon=":partly_sunny:")
+if response.status_code == 200:
+    # Parse JSON response
+    data = json.loads(response.text)
+    city = data['weather'][0]['name']
+    temperature = data['main']['temp']
+    description = data['weather'][0]['description']
+    icon = data['weather'][0]['icon']
 
-    # Define the sidebar inputs
-    location = st.sidebar.text_input("Location", DEFAULT_LOCATION)
-    output_format = st.sidebar.selectbox("Output Format", list(OUTPUT_FORMATS.keys()))
-
-    # Fetch the weather data
-    weather_data = fetch_weather_data(location)
-
-    # Display the weather data
-    if weather_data is not None:
-        st.header(f"Weather in {weather_data['location']}")
-        if output_format == "table":
-            df = pd.DataFrame([weather_data], columns=WEATHER_COLUMNS)
-            st.table(df)
-        else:
-            chart_data = pd.Series(weather_data).drop("location")
-            st.write(f"### {output_format}")
-            st.set_option("deprecation.showPyplotGlobalUse", False)
-            st.pyplot(getattr(chart_data, OUTPUT_FORMATS[output_format])())
-    
-# Run the app
-if __name__ == "__main__":
-    app()
+    # Display weather data in Streamlit app
+    st.title('Weather in London')
+    st.write('Temperature: ', temperature, '°C')
+    st.write('Description: ', description)
+    st.write('Icon: ', icon)
+    st.write('City: ', city)
+else:
+    # Handle error response
+    st.write('Error:', response.status_code)
