@@ -7,7 +7,7 @@ API_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 # Define the default location and API key
 DEFAULT_LOCATION = "London, UK"
-API_KEY = "7edb546a1f1de6d1c5ae3cd3f9850076"
+API_KEY = "eeed21bf80f1e460ee59e01ee7c8c6f6"
 
 # Define the weather data columns we want to display
 WEATHER_COLUMNS = ["Temperature", "Feels like", "Humidity", "Pressure"]
