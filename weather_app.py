@@ -2,12 +2,12 @@ import requests
 import streamlit as st
 import pandas as pd
 
-# Define the URL for the weather API
-API_URL = "https://api.openweathermap.org/data/2.5/weather"
+# Define the URL for the weather API from the new vendor
+API_URL = "https://api.weatherapi.com/v1/current.json"
 
-# Define the default location and API key
+# Define the default location and API key for the new vendor
 DEFAULT_LOCATION = "London, UK"
-API_KEY = "eeed21bf80f1e460ee59e01ee7c8c6f6"
+API_KEY = "78958bb4a0634c5da72140953231904"
 
 # Define the weather data columns we want to display
 WEATHER_COLUMNS = ["Temperature", "Feels like", "Humidity", "Pressure"]
@@ -20,18 +20,18 @@ OUTPUT_FORMATS = {
     "Area Chart": "area_chart",
 }
 
-# Define a function to fetch the weather data for a given location
+# Define a function to fetch the weather data for a given location from the new vendor
 def fetch_weather_data(location):
-    params = {"q": location, "appid": API_KEY, "units": "metric"}
+    params = {"q": location, "key": API_KEY, "aqi": "no"}
     response = requests.get(API_URL, params=params)
     if response.status_code == 200:
         data = response.json()
         return {
-            "location": f"{data['name']}, {data['sys']['country']}",
-            "temperature": data["main"]["temp"],
-            "feels_like": data["main"]["feels_like"],
-            "humidity": data["main"]["humidity"],
-            "pressure": data["main"]["pressure"],
+            "location": f"{data['location']['name']}, {data['location']['country']}",
+            "temperature": data["current"]["temp_c"],
+            "feels_like": data["current"]["feelslike_c"],
+            "humidity": data["current"]["humidity"],
+            "pressure": data["current"]["pressure_mb"],
         }
     else:
         st.warning("Unable to fetch weather data.")
